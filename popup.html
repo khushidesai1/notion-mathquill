@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="/mathquill-0.10.1/mathquill.css">
+    <link rel="stylesheet" type="text/css" href="/popup.css">
+    <script src="jquery-3.5.1.min.js"></script>
+    <script src="/mathquill-0.10.1/mathquill.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/katex/katex.css">
+    <script src="/katex/katex.js"></script>
+    <script type="text/javascript" src="/simulate/libs/bililiteRange.js"></script>
+    <script type="text/javascript" src="/simulate/libs/jquery.simulate.js"></script>
+    <script type="text/javascript" src="/simulate/src/jquery.simulate.ext.js"></script>
+    <script type="text/javascript" src="/simulate/src/jquery.simulate.key-sequence.js"></script>
+    <script type="text/javascript" src="/simulate/src/jquery.simulate.key-combo.js"></script>
+  </head>
+  <body>
+    <div>
+      <div class="main-text">
+        <img style="display: inline-block;" src="/images/logo32.png"></img><h1 style="display: inline-block;">Notion Math</h1>
+      </div>
+      <div class="body-text">
+        <p>Type "\" to start typing in latex or use the character buttons below to enter characters:</p>
+        <p>LaTeX of what you typed: <span class="rendered-latex" id="rendered-latex"></span></p>
+        <p>KaTeX of what you typed: <span id="rendered-katex" class="katex"></span></p>
+        <p class="sub-label" > Common Expressions</p>
+        <div class="button-set">
+          <img id="summation" class="char-button" src="/images/sum.png"/>
+          <img id="integral" class="char-button" src="/images/integral.png"/>
+          <img id="superscript" class="char-button" src="/images/superscript.png"/>
+          <img id="subscript" class="char-button" src="/images/subscript.png"/>
+        </div>
+
+        <p class="sub-label"><span> Relative Expressions</span></p>
+        <div class="button-set">
+          <img id="notequal" class="char-button" src="/images/noteq.png"/>
+          <img id="subset" class="char-button" src="/images/subset.png"/>
+          <img id="supset" class="char-button" src="/images/supset.png"/>
+          <img id="subseteq" class="char-button" src="/images/subseteq.png"/>
+          <img id="supseteq" class="char-button" src="/images/supseteq.png"/>
+        </div>
+
+        <p class="sub-label"><span> Logic Expressions</span></p>
+        <div class="button-set">
+          <img id="forall" class="char-button" src="/images/forall.png"/>
+        </div>
+        <p></p>
+        <span style="font-size: 25px" id="math-field"></span>
+        <p></p>
+        <button id="copy" class="button">Copy Formula</button>
+        <button id="insert-inline" class="button">Insert Equation</button>
+        <!-- <button id="insert-block" class="button">Insert Block</button> -->
+        <script src="popup.js"></script>
+      </div>
+    </div>
+  </body>
+</html>
