@@ -17,12 +17,11 @@
   <body>
     <div>
       <div class="main-text">
-        <img style="display: inline-block;" src="/images/logo32.png"></img><h1 style="display: inline-block;">Notion Math</h1>
+        <img style="display: inline-block; width: 32px; height: 32px;" src="/images/logo32.png"></img><h1 style="display: inline-block;">Notion Math</h1>
       </div>
-      <div class="body-text">
-        <p>Type "\" to start typing in latex or use the character buttons below to enter characters:</p>
-        <p>LaTeX of what you typed: <span class="rendered-latex" id="rendered-latex"></span></p>
-        <p>KaTeX of what you typed: <span id="rendered-katex" class="katex"></span></p>
+
+      <div id="general-div" class="body-text">
+        <h2>Characters</h2>
         <p class="sub-label" > Common Expressions</p>
         <div class="button-set">
           <img id="summation" class="char-button" src="/images/sum.png"/>
@@ -44,14 +43,24 @@
         <div class="button-set">
           <img id="forall" class="char-button" src="/images/forall.png"/>
         </div>
-        <p></p>
+
+        <h2 id="notion-new-math-token">Insert new equation</h2>
+        <h2 id="notion-math-token">Edit selected equation</h2>
+
         <span style="font-size: 25px" id="math-field"></span>
+        <p></p>
+        <p class="view">LaTeX: <span class="rendered-latex" id="rendered-latex"></span></p>
         <p></p>
         <button id="copy" class="button">Copy Formula</button>
         <button id="insert-inline" class="button">Insert Equation</button>
-        <!-- <button id="insert-block" class="button">Insert Block</button> -->
-        <script src="popup.js"></script>
       </div>
+      
+      <div hidden="false" id="notion-math-none" class="body-text">
+        <h2>No math blocks detected :(</h2>
+        <p>To edit an existing math block, select the math block in notion</p>
+        <p>To create a new math block first create and open an inline or block math element in Notion</p>
+      </div>
+      <script src="popup.js"></script>
     </div>
   </body>
 </html>

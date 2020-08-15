@@ -1,10 +1,10 @@
 {
-  "name": "Getting Started Example",
+  "name": "Notion Math",
   "version": "1.0",
-  "description": "Build an Extension!",
+  "description": "Chrome extension to insert math equations within Notion without knowing latex.",
   "permissions": ["activeTab", "declarativeContent", "storage"],
   "background": {
-    "scripts": ["background.js"],
+    "scripts": ["background.js", "jquery-3.5.1.min.js"],
     "persistent": false
   },
   "page_action": {
@@ -18,7 +18,7 @@
   },
   "content_scripts": [
   	{
-  		"js":["insertInlineScript.js", "jquery-3.5.1.min.js"],
+  		"js":["insertInlineScript.js", "insertBlockScript.js", "jquery-3.5.1.min.js"],
       "matches": [ "*://*.notion.so/*" ]
   	}
   ],
