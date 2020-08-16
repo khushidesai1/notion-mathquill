@@ -1,5 +1,6 @@
 // Handling which view to display in the popup
 var inlinePlaceholderText = "E = mc^2";
+var blockPlaceholderText = "|x|";
 var MQ = MathQuill.getInterface(2);
 
 // Math rendering spans
@@ -9,6 +10,7 @@ var latexSpan = document.getElementById('rendered-latex');
 // Notion inserting buttons
 let copyButton = document.getElementById('copy');
 let insertInlineButton = document.getElementById('insert-inline');
+let allowButton = document.getElementById('allow-creation');
 
 // Character insert buttons
 let summationButton = document.getElementById('summation');
@@ -22,12 +24,14 @@ let subseteqButton = document.getElementById('subseteq');
 let supseteqButton = document.getElementById('supseteq');
 let forallButton = document.getElementById('forall');
 
+// Gets the placeholder and the inner text of the active element
 function getPlaceholder() {
   var p = document.activeElement.getAttribute("placeholder");
   var iT = document.activeElement.innerText;
   return [p, iT];
 }
 
+// Changes the view of the popup based on user's document interaction
 function toggleNewExistingNone(newToggle, existingToggle, noneToggle) {
   if (!newToggle) {
     document.getElementById("notion-new-math-token").setAttribute("hidden", true);
@@ -54,17 +58,14 @@ function toggleNewExistingNone(newToggle, existingToggle, noneToggle) {
   }
 }
 
+// Obtains information from the Notion page and performs actions based on the state
 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
   chrome.tabs.executeScript({
       code: '(' + getPlaceholder + ')();'
   }, (results) => {
       var resultPlaceholder = results[0][0].trim();
       var resultInnerText = results[0][1];
-      console.log(resultPlaceholder);
-      console.log(resultInnerText);
-      var isMathBlock = resultPlaceholder === inlinePlaceholderText;
-      console.log(isMathBlock);
-      console.log(resultInnerText === "");
+      var isMathBlock = resultPlaceholder === inlinePlaceholderText || resultPlaceholder.startsWith(blockPlaceholderText);
       if (isMathBlock && resultInnerText === "") {
         toggleNewExistingNone(true, false, false);
         mathField.latex("");
@@ -79,27 +80,12 @@ chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
   });
 });
 
-// if (resultPlaceholder !== inlinePlaceholderText) {
-//   console.log("here");
-//   document.getElementById("notion-new-math-token").setAttribute("hidden", true);
-//   document.getElementById("notion-math-missing").setAttribute("hidden", false);
-// } else {
-//   console.log("here1");
-//   document.getElementById("notion-new-math-token").setAttribute("hidden", false);
-//   document.getElementById("notion-math-missing").setAttribute("hidden", true);
-// }
-
-
-// Handling changes in the math editor
+// Helper to filter and fix latex rendered by mathquill
 function filterText(text) {
   return text.replace("\\", "\\\\");
 }
 
-copyButton.onclick = function(event) {
-  mathField.select();
-  document.execCommand("copy");
-}
-
+// Inserts the given text at the cursor
 function insertTextAtCursor(text) {
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     chrome.tabs.executeScript(
@@ -108,35 +94,35 @@ function insertTextAtCursor(text) {
   });
 }
 
+// Handler for the copy button
+copyButton.onclick = function(event) {
+  mathField.select();
+  document.execCommand("copy");
+}
+
+// Handler for the insert equation button
 insertInlineButton.onclick = function(event) {
   insertTextAtCursor(filterText(latexSpan.textContent));
   window.close();
 }
 
-// insertBlockButton.onclick = function(event) {
-//   insertTextAtCursor("/inline equation");
-//   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-//     chrome.tabs.executeScript(
-//         tabs[0].id,
-//         {code: 'var s = document.createElement("script"); s.setAttribute("src", "insertBlockScript.js");'});
-//   });
-//   window.close();
-//   // chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-//   //   chrome.tabs.executeScript(
-//   //     tabs[0].id,
-//   //     {file: "jquery-3.5.1.min.js"}, function() {
-//   //       chrome.tabs.executeScript({
-//   //       file: "insertBlockScript.js"
-//   //     });
-//   //   });
-//   // });
-// }
+// Handler for the create equation button
+allowButton.onclick = function(event) {
+  toggleNewExistingNone(true, false, false);
+  mathField.latex("");
+  insertInlineButton.innerText = "Insert Equation";
+}
 
+// Adding handlers to the math field and initializing the math span
 var mathField = MQ.MathField(mathFieldSpan, {
   spaceBehavesLikeTab: true,
   handlers: {
     edit: function() {
 		  latexSpan.innerHTML = mathField.latex();
+      if (latexSpan.innerHTML !== "") {
+        insertInlineButton.removeAttribute("disabled");
+        copyButton.removeAttribute("disabled");
+      }
     }
   }
 });
@@ -165,6 +151,7 @@ function enterCommand(commandText) {
 	mathField.focus();
 }
 
+// Handlers for all the character button clicks
 summationButton.onclick = function(event) {
 	enterCommand('\\sum');
 }

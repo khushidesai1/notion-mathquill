@@ -51,14 +51,19 @@
         <p></p>
         <p class="view">LaTeX: <span class="rendered-latex" id="rendered-latex"></span></p>
         <p></p>
-        <button id="copy" class="button">Copy Formula</button>
-        <button id="insert-inline" class="button">Insert Equation</button>
+        <button disabled id="copy" class="button">Copy Formula</button>
+        <button disabled id="insert-inline" class="button">Insert Equation</button>
       </div>
       
       <div hidden="false" id="notion-math-none" class="body-text">
         <h2>No math blocks detected :(</h2>
-        <p>To edit an existing math block, select the math block in notion</p>
-        <p>To create a new math block first create and open an inline or block math element in Notion</p>
+        <ul>
+          <li>To <strong>edit an existing math block</strong>, click the rendered math block in notion</li>
+          <li>To <strong>create a new math block</strong> first create and open an inline or block math element in Notion</li>
+          <li>If you would like to create an equation anyway click the button below</li>
+        </ul>
+        <p></p>
+        <button id="allow-creation" class="button">Create Equation</button>
       </div>
       <script src="popup.js"></script>
     </div>
