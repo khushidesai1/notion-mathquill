@@ -12,18 +12,6 @@ let copyButton = document.getElementById('copy');
 let insertInlineButton = document.getElementById('insert-inline');
 let allowButton = document.getElementById('allow-creation');
 
-// Character insert buttons
-let summationButton = document.getElementById('summation');
-let integralButton = document.getElementById('integral');
-let superscriptButton = document.getElementById('superscript');
-let subscriptButton = document.getElementById('subscript');
-let notequalButton = document.getElementById('notequal');
-let subsetButton = document.getElementById('subset');
-let supsetButton = document.getElementById('supset');
-let subseteqButton = document.getElementById('subseteq');
-let supseteqButton = document.getElementById('supseteq');
-let forallButton = document.getElementById('forall');
-
 // Gets the placeholder and the inner text of the active element
 function getPlaceholder() {
   var p = document.activeElement.getAttribute("placeholder");
@@ -82,7 +70,7 @@ chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 
 // Helper to filter and fix latex rendered by mathquill
 function filterText(text) {
-  return text.replace("\\", "\\\\");
+  return text.replace(/\\/g, "\\\\");
 }
 
 // Inserts the given text at the cursor
@@ -126,70 +114,3 @@ var mathField = MQ.MathField(mathFieldSpan, {
     }
   }
 });
-
-// Handling collapsing and expanding button sections
-let coll = document.getElementsByClassName("sub-label");
-let i;
-
-for (i = 0; i < coll.length; i++) {
-  coll[i].addEventListener("click", function() {
-    this.classList.toggle("active");
-    let content = this.nextElementSibling;
-    if (content.style.maxHeight){
-      content.style.maxHeight = null;
-    } else {
-      content.style.maxHeight = content.scrollHeight + "px";
-    } 
-  });
-}
-
-// Handing math character button clicks
-function enterCommand(commandText) {
-	mathField.typedText(commandText);
-	mathField.focus();
-	mathField.keystroke('Enter');
-	mathField.focus();
-}
-
-// Handlers for all the character button clicks
-summationButton.onclick = function(event) {
-	enterCommand('\\sum');
-}
-
-integralButton.onclick = function(event) {
-	enterCommand('\\int');
-}
-
-superscriptButton.onclick = function(event) {
-	enterCommand('^');
-}
-
-subscriptButton.onclick = function(event) {
-	enterCommand("_");
-}
-
-notequalButton.onclick = function (event) {
-	enterCommand("\\neq");
-}
-
-subsetButton.onclick = function(event) {
-	enterCommand("\\subset");
-}
-
-supsetButton.onclick = function(event) {
-	enterCommand("\\supset");
-}
-
-subseteqButton.onclick = function(event) {
-	enterCommand("\\subseteq");
-}
-
-supseteqButton.onclick = function(event) {
-	enterCommand("\\supseteq");
-} 
-
-forallButton.onclick = function(event) {
-	enterCommand("\\forall");
-}
-
-
