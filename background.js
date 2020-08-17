@@ -5,9 +5,6 @@
 'use strict';
 
 chrome.runtime.onInstalled.addListener(function() {
-  // chrome.storage.sync.set({color: '#3aa757'}, function() {
-  //   console.log('The color is green.');
-  // });
   chrome.storage.sync.set({latexVal: ""}, function() {
   	console.log("The default has been set.");
   })
