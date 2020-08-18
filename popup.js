@@ -1,22 +1,27 @@
+// Get the document element using the id
+function docEl(id) {
+	return document.getElementById(id);
+}
+
 // Handling which view to display in the popup
-var MQ = MathQuill.getInterface(2);
-var inlinePlaceholderText = "E = mc^2";
-var blockPlaceholderText = "|x|";
+const MQ = MathQuill.getInterface(2);
+let inlinePlaceholderText = "E = mc^2";
+let blockPlaceholderText = "|x|";
 
 // Math rendering spans
-var mathFieldSpan = document.getElementById('math-field');
-var latexSpan = document.getElementById('rendered-latex');
+let mathFieldSpan = docEl('math-field');
+let latexSpan = docEl('rendered-latex');
 
 // Notion inserting buttons
-let copyButton = document.getElementById('copy');
-let insertInlineButton = document.getElementById('insert-inline');
-let allowButton = document.getElementById('allow-creation');
+let copyButton = docEl('copy');
+let insertInlineButton = docEl('insert-inline');
+let allowButton = docEl('allow-creation');
 
 // Gets the placeholder and the inner text of the active element
 function getPlaceholder() {
-  var ed = document.activeElement.contentEditable;
-  var p = document.activeElement.getAttribute("placeholder");
-  var iT = document.activeElement.innerText;
+  const ed = document.activeElement.contentEditable;
+  const p = document.activeElement.getAttribute("placeholder");
+  const iT = document.activeElement.innerText;
   return [ed, p, iT];
 }
 
@@ -47,22 +52,34 @@ function toggleNewExistingNone(newToggle, existingToggle, noneToggle) {
   }
 }
 
+function replaceSetNotation(text) {
+	while (text.includes("\\mathbb{R}")) {
+		text = text.replace("\\mathbb{R}", "\\reals");
+		text = text.replace("\\mathbb{Z}", "\\integers");
+		text = text.replace("\\mathbb{C}", "ℂ");
+		text = text.replace("\\mathbb{N}", "ℕ");
+		text = text.replace("\\mathbb{Q}", "ℚ");
+	}
+	return text;
+}
+
 // Obtains information from the Notion page and performs actions based on the state
 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
   chrome.tabs.executeScript({
       code: '(' + getPlaceholder + ')();'
   }, (results) => {
       if (results[0][0] === "true") {
-        var resultPlaceholder = results[0][1] ? results[0][1].trim() : null;
-        var resultInnerText = results[0][2];
-        var isMathBlock = resultPlaceholder && (resultPlaceholder === inlinePlaceholderText || resultPlaceholder.startsWith(blockPlaceholderText));
+        let resultPlaceholder = results[0][1] ? results[0][1].trim() : null;
+        let resultInnerText = results[0][2];
+        let isMathBlock = resultPlaceholder && (resultPlaceholder === inlinePlaceholderText || resultPlaceholder.startsWith(blockPlaceholderText));
         if (isMathBlock && resultInnerText === "") {
           toggleNewExistingNone(true, false, false);
           mathField.latex("");
           insertInlineButton.innerText = "Insert Equation";
         } else if (isMathBlock) {
           toggleNewExistingNone(false, true, false);
-          mathField.latex(resultInnerText);
+          console.log(resultInnerText);
+          mathField.latex(replaceSetNotation(resultInnerText));
           insertInlineButton.innerText = "Save Equation";
         } else {
           toggleNewExistingNone(false, false, true);
@@ -108,62 +125,72 @@ insertInlineButton.onclick = function(event) {
 }
 
 // Adding handlers to the math field and initializing the math span
-var mathField = MQ.MathField(mathFieldSpan, {
+let mathField = MQ.MathField(mathFieldSpan, {
   spaceBehavesLikeTab: true,
   handlers: {
     edit: function() {
 		  latexSpan.innerHTML = mathField.latex();
-      // if (latexSpan.innerHTML !== "") {
-      //   insertInlineButton.removeAttribute("disabled");
-      //   copyButton.removeAttribute("disabled");
-      // }
     }
   }
 });
 
 // Handling collapsing and expanding button sections
-let coll = document.getElementsByClassName("sub-label");
-let i;
-
-for (i = 0; i < coll.length; i++) {
-  coll[i].addEventListener("click", function() {
+let headerEl = docEl("char-head");
+headerEl.addEventListener("click", function() {
     this.classList.toggle("active");
     let content = this.nextElementSibling;
+    this.innerText = !content.style.maxHeight ? "Collapse Characters" : "Expand Characters";
     if (content.style.maxHeight){
       content.style.maxHeight = null;
     } else {
       content.style.maxHeight = content.scrollHeight + "px";
     } 
   });
+
+class HashMap {
+	constructor() {
+		this.keys = [];
+		this.primaryValues = [];
+		this.secondaryValues = [];
+	}
+
+	put(key, primaryValue, secondaryValue) {
+		if (this.keys.includes(key)) {
+			let insertIndex = this.keys.indexOf(key);
+			this.primaryValues[insertIndex] = primaryValue;
+			this.secondaryValues[insertIndex] = secondaryValue;
+		} else {
+			this.keys.push(key);
+			this.primaryValues.push(primaryValue);
+			this.secondaryValues.push(secondaryValue);
+		}
+	}
+
+	getPrimary(key) {
+		let keyIndex = this.keys.indexOf(key);
+		return this.primaryValues[keyIndex];
+	}
+
+	getSecondary(key) {
+		let keyIndex = this.keys.indexOf(key);
+		return this.secondaryValues[keyIndex];
+	}
+
+	keySet() {
+		return this.keys;
+	}
+
+	primaryValueSet() {
+		return this.primaryValues;
+	}
+
+	secondaryValueSet() {
+		return this.secondaryValues;
+	}
 }
 
-// Basic symbols
-let noteq = document.getElementById('noteq');
-let root = document.getElementById('root');
-let approxeq = document.getElementById('appxeq');
-let plusminus = document.getElementById('plus-minus');
-let superscript = document.getElementById('superscript');
-let subscript = document.getElementById('subscript');
-
-// Algebra symbols
-let sum = document.getElementById('sum');
-let integral = document.getElementById('integral');
-let pi = document.getElementById('pi');
-let cappi = document.getElementById('cappi');
-
-// Set symbols
-let subset = document.getElementById('subset');
-let supset = document.getElementById('supset');
-let subseteq = document.getElementById('subseteq');
-let supseteq = document.getElementById('supseteq');
-let union = document.getElementById('union');
-let intersection = document.getElementById('intersection');
-let belongs = document.getElementById('belongs');
-let notbelongs = document.getElementById('notbelongs');
-
-//Logic expressions
-let forall = document.getElementById('forall');
-let implies = document.getElementById('implies');
+// Creating the database of symbols
+let map = new HashMap();
 
 // Handing math character button clicks
 function enterCommand(commandText) {
@@ -173,87 +200,67 @@ function enterCommand(commandText) {
   mathField.focus();
 }
 
-// Handlers for all the character button clicks
-// Basic symbols
-noteq.onclick = function (event) {
-  enterCommand("\\neq");
+function initializeMath() {
+	let allKeys = map.keySet();
+	let i;
+	for (i = 0; i < allKeys.length; i++) {
+		let k = allKeys[i];
+		docEl(k).onclick = function(event) {
+			enterCommand(map.getSecondary(k));
+		}
+		katex.render(map.getPrimary(k), docEl(k));
+	}
 }
 
-root.onclick = function(event) {
-  enterCommand("\\sqrt");
-}
+// Adding basic symbols
+map.put('noteq', '\\neq', '\\neq');
+map.put('root', '\\sqrt{}', '\\sqrt');
+map.put('appxeq', '\\approx', '\\approx');
+map.put('plusminus', '\\pm', '\\pm');
+map.put('subscript', 'a_n', '_');
+map.put('superscript', 'a^b', '^');
+map.put('multiply', '\\times', '\\times');
+map.put('infinity', '\\infty', '\\infty');
+map.put('lessthaneq', '\\leq', '\\leq');
+map.put('greaterthaneq', '\\geq', '\\geq');
+map.put('timesdot', '\\cdot', '\\cdot');
+map.put('abs', '\\left|x\\right|', '|');
 
-approxeq.onclick = function(event) {
-  enterCommand("\\approx");
-}
+// Adding algebraic symbols
+map.put('sum', '\\sum^{}_{}', '\\sum');
+map.put('integral', '\\int', '\\int');
+map.put('pi', '\\pi', '\\pi');
+map.put('cappi', '\\Pi', '\\Pi');
 
-plusminus.onclick = function(event) {
-  enterCommand("\\pm");
-}
+// Adding set symbols
+map.put('subset', '\\subset', '\\subset');
+map.put('supset', '\\supset', '\\supset');
+map.put('supset', '\\supset', '\\supset');
+map.put('subseteq', '\\subseteq', '\\subseteq');
+map.put('supseteq', '\\supseteq', '\\supseteq');
+map.put('union', '\\cup', '\\cup');
+map.put('intersection', '\\cap', '\\cap');
+map.put('belongs', '\\in', '\\in');
+map.put('notbelongs', '\\notin', '\\notin');
+map.put('emptyset', '\\emptyset', '\\emptyset');
+map.put('notsubset', '\\not\\subset', '\\notsubset');
+map.put('intset', '\\mathbb{Z}', '\\integers');
+map.put('realset', '\\reals', '\\reals');
+map.put('compset', '\\mathbb{C}', '\\complex');
+map.put('rationset', '\\mathbb{Q}', '\\rationals');
+map.put('naturalset', '\\mathbb{N}', '\\naturals');
 
-superscript.onclick = function(event) {
-  enterCommand('^');
-}
+// Adding logic symbols
+map.put('forall', '\\forall', '\\forall');
+map.put('therefore', '\\therefore', '\\therefore');
+map.put('because', '\\because', '\\because');
+map.put('implies', '\\Rightarrow', '\\Rightarrow');
+map.put('equivalent', '\\Leftrightarrow', '\\Leftrightarrow');
+map.put('negate', '\\neg', '\\neg');
+map.put('land', '\\land', '\\land');
+map.put('lor', '\\lor', '\\lor');
+map.put('oplus', '\\oplus', '\\oplus');
+map.put('orbar', '\\vert', '\\vert');
 
-subscript.onclick = function(event) {
-  enterCommand("_");
-}
-
-// Algebra symbols
-sum.onclick = function(event) {
-  enterCommand('\\sum');
-}
-
-integral.onclick = function(event) {
-  enterCommand('\\int');
-}
-
-pi.onclick = function(event) {
-  enterCommand('\\pi');
-}
-
-cappi.onclick = function(event) {
-  enterCommand('\\Pi');
-}
-
-// Set symbols
-subset.onclick = function(event) {
-  enterCommand("\\subset");
-}
-
-supset.onclick = function(event) {
-  enterCommand("\\supset");
-}
-
-subseteq.onclick = function(event) {
-  enterCommand("\\subseteq");
-}
-
-supseteq.onclick = function(event) {
-  enterCommand("\\supseteq");
-} 
-
-union.onclick = function(event) {
-  enterCommand("\\union");
-}
-
-intersection.onclick = function(event) {
-  enterCommand("\\intersection");
-}
-
-belongs.onclick = function(event) {
-  enterCommand("\\in");
-}
-
-notbelongs.onclick = function(event) {
-  enterCommand("\\notin");
-}
-
-// Logic symbols
-forall.onclick = function(event) {
-  enterCommand("\\forall");
-}
-
-implies.onclick = function(event) {
-  enterCommand("\\implies");
-}
+// window.renderMathInElement(document.body);
+initializeMath();
