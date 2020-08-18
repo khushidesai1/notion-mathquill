@@ -53,12 +53,12 @@ function toggleNewExistingNone(newToggle, existingToggle, noneToggle) {
 }
 
 function replaceSetNotation(text) {
-	while (text.includes("\\mathbb{R}")) {
-		text = text.replace("\\mathbb{R}", "\\reals");
-		text = text.replace("\\mathbb{Z}", "\\integers");
-		text = text.replace("\\mathbb{C}", "ℂ");
-		text = text.replace("\\mathbb{N}", "ℕ");
-		text = text.replace("\\mathbb{Q}", "ℚ");
+	while (text.includes("\\mathbb")) {
+		text = text.replace("\\mathbb{R}", "\\R");
+		text = text.replace("\\mathbb{Z}", "\\Z");
+		text = text.replace("\\mathbb{C}", "\\C");
+		text = text.replace("\\mathbb{N}", "\\N");
+		text = text.replace("\\mathbb{Q}", "\\Q");
 	}
 	return text;
 }
@@ -93,6 +93,7 @@ chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 
 // Helper to filter and fix latex rendered by mathquill
 function filterText(text) {
+  text = text.replace(/∄/g, '\\nexists');
   return text.replace(/\\/g, "\\\\");
 }
 
@@ -121,7 +122,6 @@ allowButton.onclick = function(event) {
 // Handler for the insert equation button
 insertInlineButton.onclick = function(event) {
   insertTextAtCursor(filterText(latexSpan.textContent));
-  window.close();
 }
 
 // Adding handlers to the math field and initializing the math span
@@ -130,7 +130,7 @@ let mathField = MQ.MathField(mathFieldSpan, {
   handlers: {
     edit: function() {
 		  latexSpan.innerHTML = mathField.latex();
-    }
+    },
   }
 });
 
@@ -244,14 +244,17 @@ map.put('belongs', '\\in', '\\in');
 map.put('notbelongs', '\\notin', '\\notin');
 map.put('emptyset', '\\emptyset', '\\emptyset');
 map.put('notsubset', '\\not\\subset', '\\notsubset');
-map.put('intset', '\\mathbb{Z}', '\\integers');
-map.put('realset', '\\reals', '\\reals');
-map.put('compset', '\\mathbb{C}', '\\complex');
-map.put('rationset', '\\mathbb{Q}', '\\rationals');
-map.put('naturalset', '\\mathbb{N}', '\\naturals');
+map.put('notsuperset', '\\not\\supset', '\\notsuperset');
+map.put('intset', '\\mathbb{Z}', '\\Z');
+map.put('realset', '\\mathbb{R}', '\\R');
+map.put('compset', '\\mathbb{C}', '\\C');
+map.put('rationset', '\\mathbb{Q}', '\\Q');
+map.put('naturalset', '\\mathbb{N}', '\\N');
 
 // Adding logic symbols
 map.put('forall', '\\forall', '\\forall');
+map.put('exists', '\\exists', '\\exists');
+map.put('nexists', '\\nexists', '∄');
 map.put('therefore', '\\therefore', '\\therefore');
 map.put('because', '\\because', '\\because');
 map.put('implies', '\\Rightarrow', '\\Rightarrow');
